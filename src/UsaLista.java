@@ -6,37 +6,34 @@ public class UsaLista {
 		// TODO Auto-generated method stub
 
 		int metodo, iteracoes=20;
-		String dado;
-		No no;
+		String data;
 		Random r = new Random();
 		
 		Lista <String> l = new Lista <> ();
 		
 		for (int i=0;i<iteracoes;i++){
 			metodo = r.nextInt(2)+1;
-			dado = "Valor."+String.format("%04d", i);
+			data = String.format("%03d", i);
+			//data = Integer.toString(i);
 			switch (metodo){
 			case 1:
-				dado = "Beg."+dado;
-				l.addBeg(dado);
+				//data = "In."+data;
+				l.insert(data);
 				break;
 			case 2:
-				dado = "End."+dado;
-				l.addEnd(dado);
+				//data = "Ap."+data;
+				l.append(data);
 				break;
 			}
 		}
 		
-		no = l.getHead();
+		l.listar();
+		
+		data = String.format("%03d", (r.nextInt(iteracoes)-1));
+		//data = Integer.toString(r.nextInt(iteracoes)-1);
+		System.out.println("\n"+l.remove(data)+"\n");
 
-		if (no == null){
-			System.err.println("Lista Vazia!!!");
-		}else{
-			while (no != null){
-				System.out.println(no.getDado());
-				no = no.getPrx();
-			}
-		}
+		l.listar();
 	}
 
 }

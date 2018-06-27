@@ -1,32 +1,32 @@
 
 public class No <T>{
-	public final T dado;
-	private No <T> ant;
-	private No <T> prx;
+	public final T data;
+	private No <T> prev;
+	private No <T> next;
 
-	public No (T dado) {
-		this.dado = dado;
-		this.ant = null;
-		this.prx = null;
+	public No (T data) {
+		this.data = data;
+		this.prev = null;
+		this.next = null;
 	}
 
-	public No<T> getAnt() {
-		return this.ant;
+	public No<T> getPrev() {
+		return this.prev;
 	}
 
-	public void setAnt(No<T> ant) {
-		this.ant = ant;
+	public void setPrev(No<T> prev) {
+		this.prev = prev;
 	}
 
-	public No<T> getPrx() {
-		return this.prx;
+	public No<T> getNext() {
+		return this.next;
 	}
 
-	public void setPrx(No<T> prx) {
-		this.prx = prx;
+	public void setNext(No<T> next) {
+		this.next = next;
 	}
 
-	public T getDado() {
-		return this.dado;
+	public T getData() {
+		return this.data;
 	}
 }
