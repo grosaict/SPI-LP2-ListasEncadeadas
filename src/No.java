@@ -1,8 +1,8 @@
 
-public class No <T>{
+public class No<T>{
 	public final T data;
-	private No <T> prev;
-	private No <T> next;
+	private No<T> prev;
+	private No<T> next;
 
 	public No (T data) {
 		this.data = data;

@@ -1,5 +1,5 @@
 
-public class Lista <T>{
+public class Lista<T>{
 	private No head;
 	private No tail;
 
@@ -15,7 +15,6 @@ public class Lista <T>{
 				newNo.setPrev(no.getPrev());	// newNo prev aponta para o prev do No
 				no.getPrev().setNext(newNo);	// next do prev do No (agora tb do newNo) aponta para o newNo
 				no.setPrev(newNo);				// No prev aponta para o newNo 
-
 			}
 		} else {
 			this.head = this.tail = newNo;
@@ -42,6 +41,8 @@ public class Lista <T>{
 	
 	public void insertInOrder(T data) {
 		No newNo = new No(data);
+		Vetor v = new Vetor(getHead(), getTail());
+	
 		if (this.head != null) {
 			if (((String) data).compareTo((String) this.head.getData()) <= 0) {
 				insertBefore(data, this.head);
@@ -49,7 +50,7 @@ public class Lista <T>{
 				if (((String) data).compareTo((String) this.tail.getData()) >= 0) {
 					append(data, this.tail);
 				} else {
-					append(data, this.tail);
+					append(data, v.searchSmallerNo(data));
 				}
 			}
 		} else {
@@ -73,7 +74,7 @@ public class Lista <T>{
 			return "Lista vazia!!!";
 		}
 	}
-	
+
 	private No searchNo(T data) {
 		No no = this.head;
 		while (no != null){

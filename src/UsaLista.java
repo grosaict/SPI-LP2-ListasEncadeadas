@@ -28,7 +28,9 @@ public class UsaLista {
 		
 		for (int i=0;i<iteracoes;i++){								// inserção ordenada dos valores
 			data = String.format("%03d", r.nextInt(iteracoes)+1);
+/* debug */	System.out.println(i+" I "+data);
 			l.insertInOrder(data);
+/* debug */	System.out.println("   "+l.getHead().getData()+"-"+l.getTail().getData());
 		}
 		
 		l.listar();
