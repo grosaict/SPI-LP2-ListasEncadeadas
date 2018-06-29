@@ -1,5 +1,5 @@
 
-public class Vetor<T> {
+public class Vetor <T extends Comparable <T>> {
 	No head, tail;
 
 	public Vetor(No head, No tail) {
@@ -7,15 +7,15 @@ public class Vetor<T> {
 		this.tail = tail;
 	}
 
-	public No searchSmallerNo(T data) {
-		No smallerNo = null, auxNo = this.head;
+	public No searchNo(T data) {
+		No foundNo = null, auxNo = this.head;
 		No[] index = null;
 		int size = 0, increase = 100, start = 0, foward = 10, rewind = 5, max = foward, top = foward, min = 0;
 		
 		index = madeArray(index, size, increase);
 		size = size + increase;
 		
-		while (smallerNo == null) {
+		while (foundNo == null) {
 			if (max > top){
 				max = top;
 			}
@@ -32,19 +32,19 @@ public class Vetor<T> {
 					top = max = i;
 				}
 			}
-			if (isBetween(data, auxNo.getPrev().getData(), auxNo.getData())) {			// Se está entre ...
-				smallerNo = auxNo.getPrev();											// então GOAL!
+			if (isBetween(data, (T) auxNo.getPrev().getData(), (T) auxNo.getData())) {			// Se está entre ...
+				foundNo = auxNo;											// então GOAL!
 			} else {
-				while (isTooAdvanced(data, auxNo.getPrev().getData(), auxNo.getData()) && smallerNo == null) {	// Se passou do ponto ...
+				while (isTooAdvanced(data, (T) auxNo.getPrev().getData(), (T) auxNo.getData()) && foundNo == null) {	// Se passou do ponto ...
 					min = max - rewind;																			// ... então retrocede ...
 					if (min <= 0){
 						min = 1;
 					}
 /* debug */			System.out.println((min)+"R"+auxNo.getData());
-					if (isBetween(data, auxNo.getPrev().getData(), auxNo.getData())) {	// Se está entre ...
-						smallerNo = auxNo;												// ... então GOAL!
+					if (isBetween(data, (T) auxNo.getPrev().getData(), (T) auxNo.getData())) {	// Se está entre ...
+						foundNo = auxNo.getNext();												// ... então GOAL!
 					} else {																
-						if (!isFarBehind(data, auxNo.getPrev().getData(), auxNo.getData())) {	// Se não passou do ponto rebobina mais um pouco.
+						if (!isFarBehind(data, (T) auxNo.getPrev().getData(), (T) auxNo.getData())) {	// Se não passou do ponto rebobina mais um pouco.
 							min = min - rewind;
 							if (min <= 0){
 								min = 1;
@@ -69,39 +69,38 @@ public class Vetor<T> {
 				max = start + foward;
 			}
 		}
-		return smallerNo;
+		return foundNo;
 	}
 	
-	private boolean isBetween (T data, Object anterior, Object seguinte){
+	private boolean isBetween (T data, T anterior, T seguinte){
 /* debug */	System.out.println(anterior+" <= "+data+" <= "+seguinte);
-		if (((String) data).compareTo((String) anterior) >= 0 &&
-			((String) data).compareTo((String) seguinte) <= 0) {
+		if (data.compareTo(anterior) >= 0 &&
+			data.compareTo(seguinte) <= 0) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	private boolean isTooAdvanced (T data, Object anterior, Object seguinte){
+	private boolean isTooAdvanced (T data, T anterior, T seguinte){
 /* debug */	System.out.println(anterior+" > "+data+" < "+seguinte);
-		if (((String) data).compareTo((String) anterior) < 0 &&
-			((String) data).compareTo((String) seguinte) < 0) {
+		if (data.compareTo(anterior) < 0 &&
+			data.compareTo(seguinte) < 0) {
 				return true;
 			} else {
 				return false;
 			}
 	}
 	
-	private boolean isFarBehind (T data, Object anterior, Object seguinte){
+	private boolean isFarBehind (T data, T anterior, T seguinte){
 /* debug */	System.out.println(anterior+" < "+data+" > "+seguinte);
-		if (((String) data).compareTo((String) anterior) > 0 &&
-			((String) data).compareTo((String) seguinte) > 0) {
+		if (data.compareTo(anterior) > 0 &&
+			data.compareTo(seguinte) > 0) {
 				return true;
 			} else {
 				return false;
 			}
 	}
-
 
 	private No[] madeArray(No[] index, int size, int increase) {		// cria ou aumenta um vetor dinâmico de No's
 		No[] newIndex = new No[size + increase];

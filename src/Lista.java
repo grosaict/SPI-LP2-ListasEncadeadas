@@ -1,99 +1,23 @@
 
-public class Lista<T>{
+public class Lista <T extends Comparable <T>>{
 	private No head;
 	private No tail;
+	private int tooSmall = 10;
 
-	public void insertBefore(T data, No no) {
-		No newNo = new No(data);
-		if (this.head != null) {
-			if (no == this.head){
-				newNo.setNext(this.head);
-				this.head.setPrev(newNo);
-				this.head = newNo;
-			} else {
-				newNo.setNext(no);				// newNo next aponta para o No
-				newNo.setPrev(no.getPrev());	// newNo prev aponta para o prev do No
-				no.getPrev().setNext(newNo);	// next do prev do No (agora tb do newNo) aponta para o newNo
-				no.setPrev(newNo);				// No prev aponta para o newNo 
-			}
-		} else {
-			this.head = this.tail = newNo;
-		}
-	}
-
-	public void append(T data, No no) {
-		No newNo = new No(data);
-		if (this.head != null) {
-			if (no == this.tail){
-				newNo.setPrev(this.tail);
-				this.tail.setNext(newNo);
-				this.tail = newNo;
-			} else {
-				newNo.setPrev(no);				// newNo prev aponta para o No
-				newNo.setNext(no.getNext());	// newNo next aponta para o next do No
-				no.getNext().setPrev(newNo);	// prev do next do No (agora tb do newNo) aponta para o newNo
-				no.setNext(newNo);				// No next aponta para o newNo 
-			}
-		} else {
-			this.head = this.tail = newNo;
-		}
-	}
-	
-	public void insertInOrder(T data) {
-		No newNo = new No(data);
-		Vetor v = new Vetor(getHead(), getTail());
-	
-		if (this.head != null) {
-			if (((String) data).compareTo((String) this.head.getData()) <= 0) {
-				insertBefore(data, this.head);
-			} else {
-				if (((String) data).compareTo((String) this.tail.getData()) >= 0) {
-					append(data, this.tail);
-				} else {
-					append(data, v.searchSmallerNo(data));
-				}
-			}
-		} else {
-			this.head = this.tail = newNo;
-		}
-	}
-
-	public String remove(T data){
-		No no;
-		if (head != null) {
-			no = searchNo(data);
-			if (no != null){
-				no.getNext().setPrev(no.getPrev());
-				no.getPrev().setNext(no.getNext());
-				remove(data);									// para exluir mais de uma ocorrência
-				return "Dado "+data+" excluído com sucesso!";
-			} else {
-				return "Dado "+data+" não localizado na lista!";
-			}
-		} else {
-			return "Lista vazia!!!";
-		}
-	}
-
-	private No searchNo(T data) {
-		No no = this.head;
-		while (no != null){
-			// if (data.equals(no.getData())){
-			// foi necessário usar o casting para funcionar o compareTo()
-			if (((String) data).compareTo((String) no.getData()) == 0){
-				break;
-			}
-			no = no.getNext();
-		}
-		return no;
-	}
-	
 	public No getHead() {
 		return this.head;
 	}
 
+	public void setHead(No head) {
+		this.head = head;
+	}
+
 	public No getTail() {
 		return this.tail;
+	}
+
+	public void setTail(No tail) {
+		this.tail = tail;
 	}
 	
 	public void listar(){
@@ -114,6 +38,134 @@ public class Lista<T>{
 				no = no.getNext();
 			}
 		}
+	}
+	
+	public void insertBefore(T data, No no) {
+		No newNo = new No(data);
+
+		if (getHead() != null) {
+			if (no == getHead()){
+				newNo.setNext(getHead());
+				getHead().setPrev(newNo);
+				setHead(newNo);
+			} else {
+				newNo.setNext(no);				// newNo next aponta para o No
+				newNo.setPrev(no.getPrev());	// newNo prev aponta para o prev do No
+				no.getPrev().setNext(newNo);	// next do prev do No (agora tb do newNo) aponta para o newNo
+				no.setPrev(newNo);				// No prev aponta para o newNo 
+			}
+		} else {
+			setHead(newNo);
+			setTail(newNo);
+		}
+	}
+
+	public void append(T data, No no) {
+		No newNo = new No(data);
+
+		if (getHead() != null) {
+			if (no == getTail()){
+				newNo.setPrev(getTail());
+				getTail().setNext(newNo);
+				setTail(newNo);
+			} else {
+				newNo.setPrev(no);				// newNo prev aponta para o No
+				newNo.setNext(no.getNext());	// newNo next aponta para o next do No
+				no.getNext().setPrev(newNo);	// prev do next do No (agora tb do newNo) aponta para o newNo
+				no.setNext(newNo);				// No next aponta para o newNo 
+			}
+		} else {
+			setHead(newNo);
+			setTail(newNo);
+		}
+	}
+	
+	public void insertInOrder(T data) {
+		No newNo = new No(data);
+	
+		if (getHead() != null) {
+			if (data.compareTo((T) getHead().getData()) <= 0) {
+				insertBefore(data, getHead());
+			} else {
+				if (data.compareTo((T) getTail().getData()) >= 0) {
+					append(data, getTail());
+				} else {
+					insertBefore(data, searchNo(data));
+				}
+			}
+		} else {
+			setHead(newNo);
+			setTail(newNo);
+		}
+	}
+
+	public String remove(T data){
+		No auxNo;
+
+		if (getHead() != null) {
+			auxNo = searchNo(data);
+			if (auxNo != null && data.compareTo((T) auxNo.getData()) == 0){
+				if (auxNo == getHead()){
+					if (auxNo == getTail()){
+						setHead(null);
+						setTail(null);
+					} else {
+						auxNo.getNext().setPrev(null);
+						setHead(auxNo.getNext());
+					}
+				} else {
+					if (auxNo == getTail()){
+						auxNo.getPrev().setNext(null);
+						setTail(auxNo.getPrev());
+					} else {
+						auxNo.getNext().setPrev(auxNo.getPrev());
+						auxNo.getPrev().setNext(auxNo.getNext());
+					}
+				}
+				remove(data);									// para exluir mais de uma ocorrência
+				return "Dado "+data+" excluído com sucesso!";
+			} else {
+				return "Dado "+data+" não localizado na lista!";
+			}
+		} else {
+			return "Lista vazia!!!";
+		}
+	}
+	
+	private No searchNo(T data) {
+		No foundNo;
+		if (isTooSmall()){
+			foundNo = seekOneByOne(data);
+		} else {
+			foundNo = seekJumping(data);
+		}
+		return foundNo;
+	}
+	
+	private boolean isTooSmall () {
+		No auxNo = getHead();
+		for (int i=0; i<this.tooSmall; i++){
+			if (auxNo == getTail()){
+				return true;
+			}
+			auxNo = auxNo.getNext();
+		}
+		return false;
+	}
+
+	private No seekOneByOne(T data) {
+		No auxNo = getHead();
+		while (auxNo != null){
+			if (data.compareTo((T) auxNo.getData()) <= 0){
+				break;
+			}
+			auxNo = auxNo.getNext();
+		}
+		return auxNo;
+	}
+
+	private No seekJumping(T data) {
+		return null;
 	}
 
 }
