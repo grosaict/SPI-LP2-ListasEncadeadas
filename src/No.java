@@ -3,13 +3,13 @@ public class No <T>{
 	public final T data;
 	private No <T> prev;
 	private No <T> next;
-	private No <T> skip;
+	private No <T> jump;
 
 	public No (T data) {
 		this.data = data;
 		this.prev = null;
 		this.next = null;
-		this.skip = null;
+		this.jump = null;
 	}
 
 	public No<T> getPrev() {
@@ -28,12 +28,12 @@ public class No <T>{
 		this.next = next;
 	}
 
-	public No<T> getSkip() {
-		return this.skip;
+	public No<T> getJump() {
+		return this.jump;
 	}
 
-	public void setSkip(No<T> skip) {
-		this.skip = skip;
+	public void setJump(No<T> jump) {
+		this.jump = jump;
 	}
 
 	public T getData() {

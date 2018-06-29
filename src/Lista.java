@@ -2,7 +2,8 @@
 public class Lista <T extends Comparable <T>>{
 	private No head;
 	private No tail;
-	private int tooSmall = 10;
+	private int tooSmall = 10, insertions = 0;
+	private boolean validJump = false;
 
 	public No getHead() {
 		return this.head;
@@ -18,26 +19,6 @@ public class Lista <T extends Comparable <T>>{
 
 	public void setTail(No tail) {
 		this.tail = tail;
-	}
-	
-	public void listar(){
-		No no;
-		int i =1;
-		no = getHead();
-
-		if (no == null){
-			System.err.println("Lista Vazia!!!");
-		}else{
-			while (no != null){
-				if (i%20 == 0){
-					System.out.println(no.getData());
-				} else {
-					System.out.print(no.getData()+"   ");
-				}
-				i++;
-				no = no.getNext();
-			}
-		}
 	}
 	
 	public void insertBefore(T data, No no) {
@@ -58,6 +39,9 @@ public class Lista <T extends Comparable <T>>{
 			setHead(newNo);
 			setTail(newNo);
 		}
+		//if (this.insertions++ > 10){
+			this.validJump = false;
+		//}
 	}
 
 	public void append(T data, No no) {
@@ -78,6 +62,9 @@ public class Lista <T extends Comparable <T>>{
 			setHead(newNo);
 			setTail(newNo);
 		}
+		//if (this.insertions > 10){
+			this.validJump = false;
+		//}
 	}
 	
 	public void insertInOrder(T data) {
@@ -100,29 +87,38 @@ public class Lista <T extends Comparable <T>>{
 	}
 
 	public String remove(T data){
-		No auxNo;
+		No auxNo, noToDelete;
 
 		if (getHead() != null) {
 			auxNo = searchNo(data);
 			if (auxNo != null && data.compareTo((T) auxNo.getData()) == 0){
-				if (auxNo == getHead()){
-					if (auxNo == getTail()){
-						setHead(null);
-						setTail(null);
+				noToDelete = auxNo;
+				while (noToDelete == auxNo) {					// para exluir mais de uma ocorrência em lista ORDENADA
+					if (noToDelete == getHead()){
+						if (noToDelete == getTail()){
+							setHead(null);
+							setTail(null);
+						} else {
+							noToDelete.getNext().setPrev(null);
+							setHead(noToDelete.getNext());
+						}
+						noToDelete = null;						// para exluir mais de uma ocorrência em lista ORDENADA
 					} else {
-						auxNo.getNext().setPrev(null);
-						setHead(auxNo.getNext());
-					}
-				} else {
-					if (auxNo == getTail()){
-						auxNo.getPrev().setNext(null);
-						setTail(auxNo.getPrev());
-					} else {
-						auxNo.getNext().setPrev(auxNo.getPrev());
-						auxNo.getPrev().setNext(auxNo.getNext());
+						if (noToDelete == getTail()){
+							noToDelete.getPrev().setNext(null);
+							setTail(noToDelete.getPrev());
+						} else {
+							noToDelete.getNext().setPrev(noToDelete.getPrev());
+							noToDelete.getPrev().setNext(noToDelete.getNext());
+						}
+						auxNo = noToDelete.getPrev();
+						if (data.compareTo((T) auxNo.getData()) == 0){
+							noToDelete = auxNo;					// para exluir mais de uma ocorrência em lista ORDENADA
+						}
 					}
 				}
-				remove(data);									// para exluir mais de uma ocorrência
+//				remove(data);										// para exluir mais de uma ocorrência em lista DESORDENADA
+				this.validJump = false;
 				return "Dado "+data+" excluído com sucesso!";
 			} else {
 				return "Dado "+data+" não localizado na lista!";
@@ -133,13 +129,15 @@ public class Lista <T extends Comparable <T>>{
 	}
 	
 	private No searchNo(T data) {
-		No foundNo;
-		if (isTooSmall()){
-			foundNo = seekOneByOne(data);
+		if (data.compareTo((T) getHead().getData()) <= 0){
+			return getHead();
 		} else {
-			foundNo = seekJumping(data);
+			if (isTooSmall()){
+				return seekOneByOne(data);
+			} else {
+				return seekJumping(data);
+			}
 		}
-		return foundNo;
 	}
 	
 	private boolean isTooSmall () {
@@ -164,8 +162,66 @@ public class Lista <T extends Comparable <T>>{
 		return auxNo;
 	}
 
-	private No seekJumping(T data) {
-		return null;
+	private No seekJumping (T data) {
+		No auxNo = getHead();
+
+		if (!this.validJump){					// se houverem mais de X inserções ou alguma exclusão, refaz os índices.
+			creatJumpIndex();
+		}
+		while (auxNo != null){
+			if (data.compareTo((T) auxNo.getData()) <= 0){
+				while (data.compareTo((T) auxNo.getData()) > 0 ||
+					   data.compareTo((T) auxNo.getPrev().getData()) <= 0){
+//*debug*/			System.out.println(data+" getPrev "+auxNo.getPrev().getData());
+					auxNo = auxNo.getPrev();	// retorna um
+				}
+				return auxNo;
+			}
+			if (auxNo.getJump() == null){
+//*debug*/		System.out.println(data+" getNext "+auxNo.getNext().getData());
+				auxNo = auxNo.getNext();		// avança um
+			} else {
+//*debug*/		System.out.println(data+" getJump "+auxNo.getJump().getData());
+				auxNo = auxNo.getJump();		// avança vários
+			}
+		}
+		return auxNo;
+	}
+	
+	private void creatJumpIndex() {
+		No auxNo = getHead(), backNo = getHead();
+		int jumpNow = 0;
+		while (auxNo != null){
+			auxNo.setJump(null);
+			if (jumpNow >= 5){
+				backNo.setJump(auxNo);
+				backNo = auxNo;
+				jumpNow = 0;
+			}
+			jumpNow++;
+			auxNo = auxNo.getNext();
+		}
+		this.insertions = 0;
+		this.validJump = true;
+	}
+
+	public void listar(){
+		No auxNo = getHead();
+
+		if (auxNo == null){
+			System.err.println("Lista Vazia!!!");
+		}else{
+			int i = 1;
+			while (auxNo != null){
+				if (i%20 != 0){
+					System.out.print(auxNo.getData()+"   ");
+				} else {
+					System.out.println(auxNo.getData());
+				}
+				i++;
+				auxNo = auxNo.getNext();
+			}
+		}
 	}
 
 }
