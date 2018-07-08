@@ -2,7 +2,7 @@
 public class Lista <T extends Comparable <T>>{
 	private No head;
 	private No tail;
-	private int tooSmall = 10, insertions = 0;
+	private int tooSmall = 50, insertions = 0, jump = 20;
 	private boolean validJump = false;
 
 	public No getHead() {
@@ -30,18 +30,18 @@ public class Lista <T extends Comparable <T>>{
 				getHead().setPrev(newNo);
 				setHead(newNo);
 			} else {
-				newNo.setNext(no);				// newNo next aponta para o No
-				newNo.setPrev(no.getPrev());	// newNo prev aponta para o prev do No
-				no.getPrev().setNext(newNo);	// next do prev do No (agora tb do newNo) aponta para o newNo
-				no.setPrev(newNo);				// No prev aponta para o newNo 
+				newNo.setNext(no);				// next do newNo aponta para o No
+				newNo.setPrev(no.getPrev());	// prev do newNo aponta para o prev do No
+				no.getPrev().setNext(newNo);	// next do prev do No aponta para o newNo
+				no.setPrev(newNo);				// prev do No aponta para o newNo 
 			}
 		} else {
 			setHead(newNo);
 			setTail(newNo);
 		}
-		//if (this.insertions++ > 10){
+		if (this.insertions++ > 10){
 			this.validJump = false;
-		//}
+		}
 	}
 
 	public void append(T data, No no) {
@@ -53,10 +53,10 @@ public class Lista <T extends Comparable <T>>{
 				getTail().setNext(newNo);
 				setTail(newNo);
 			} else {
-				newNo.setPrev(no);				// newNo prev aponta para o No
-				newNo.setNext(no.getNext());	// newNo next aponta para o next do No
-				no.getNext().setPrev(newNo);	// prev do next do No (agora tb do newNo) aponta para o newNo
-				no.setNext(newNo);				// No next aponta para o newNo 
+				newNo.setPrev(no);				// prev do newNo aponta para o No
+				newNo.setNext(no.getNext());	// next do newNo aponta para o next do No
+				no.getNext().setPrev(newNo);	// prev do next do No aponta para o newNo
+				no.setNext(newNo);				// next do No aponta para o newNo 
 			}
 		} else {
 			setHead(newNo);
@@ -88,36 +88,10 @@ public class Lista <T extends Comparable <T>>{
 
 	public String remove(T data){
 		No auxNo, noToDelete;
-
 		if (getHead() != null) {
-			auxNo = searchNo(data);
-			if (auxNo != null && data.compareTo((T) auxNo.getData()) == 0){
-				noToDelete = auxNo;
-				while (noToDelete == auxNo) {					// para exluir mais de uma ocorrência em lista ORDENADA
-					if (noToDelete == getHead()){
-						if (noToDelete == getTail()){
-							setHead(null);
-							setTail(null);
-						} else {
-							noToDelete.getNext().setPrev(null);
-							setHead(noToDelete.getNext());
-						}
-						noToDelete = null;						// para exluir mais de uma ocorrência em lista ORDENADA
-					} else {
-						if (noToDelete == getTail()){
-							noToDelete.getPrev().setNext(null);
-							setTail(noToDelete.getPrev());
-						} else {
-							noToDelete.getNext().setPrev(noToDelete.getPrev());
-							noToDelete.getPrev().setNext(noToDelete.getNext());
-						}
-						auxNo = noToDelete.getPrev();
-						if (data.compareTo((T) auxNo.getData()) == 0){
-							noToDelete = auxNo;					// para exluir mais de uma ocorrência em lista ORDENADA
-						}
-					}
-				}
-//				remove(data);										// para exluir mais de uma ocorrência em lista DESORDENADA
+			noToDelete = searchNo(data);
+			if (noToDelete != null && data.compareTo((T) noToDelete.getData()) == 0){
+				removeAct (noToDelete);					// a ação de remoção em sí
 				this.validJump = false;
 				return "Dado "+data+" excluído com sucesso!";
 			} else {
@@ -125,6 +99,32 @@ public class Lista <T extends Comparable <T>>{
 			}
 		} else {
 			return "Lista vazia!!!";
+		}
+	}
+	
+	private void removeAct (No noToDelete) {
+		if (noToDelete == getHead()){
+			if (noToDelete == getTail()){
+				setHead(null);							// exclusão do único nó da lista
+				setTail(null);
+			} else {
+				noToDelete.getNext().setPrev(null);		// prev do next ao head passa a ser null
+				setHead(noToDelete.getNext());			// next do head passa a ser o head
+			}
+		} else {
+			if (noToDelete == getTail()){
+				noToDelete.getPrev().setNext(null);		// next do prev do tail passa a ser null
+				setTail(noToDelete.getPrev());			// prev do tail passa a ser o tail
+			} else {
+				noToDelete.getNext().setPrev(noToDelete.getPrev());	// prev do next passa a ser o prev do noToDelete
+				noToDelete.getPrev().setNext(noToDelete.getNext());	// next do prev passa a ser o next do noToDelete
+			}
+		}
+//		remove(data);									// para exluir mais de uma ocorrência em lista DESordenada
+		if (noToDelete.getNext() != null){				// para exluir mais de uma ocorrência em lista ORDENADA
+			if (((T) noToDelete.getData()).compareTo((T) noToDelete.getNext().getData()) == 0){
+				removeAct (noToDelete.getNext());
+			}
 		}
 	}
 	
@@ -169,19 +169,15 @@ public class Lista <T extends Comparable <T>>{
 			creatJumpIndex();
 		}
 		while (auxNo != null){
-			if (data.compareTo((T) auxNo.getData()) <= 0){
-				while (data.compareTo((T) auxNo.getData()) > 0 ||
-					   data.compareTo((T) auxNo.getPrev().getData()) <= 0){
-//*debug*/			System.out.println(data+" getPrev "+auxNo.getPrev().getData());
+			if (data.compareTo((T) auxNo.getData()) <= 0){						// se dado <= ao dado do auxNo
+				while (data.compareTo((T) auxNo.getPrev().getData()) <= 0){		// enquanto dado <= ao dado do no anterior ao auxNo
 					auxNo = auxNo.getPrev();	// retorna um
 				}
-				return auxNo;
+				return auxNo;					// retorna sempre a ocorrência de "índice" menor
 			}
 			if (auxNo.getJump() == null){
-//*debug*/		System.out.println(data+" getNext "+auxNo.getNext().getData());
 				auxNo = auxNo.getNext();		// avança um
 			} else {
-//*debug*/		System.out.println(data+" getJump "+auxNo.getJump().getData());
 				auxNo = auxNo.getJump();		// avança vários
 			}
 		}
@@ -190,38 +186,18 @@ public class Lista <T extends Comparable <T>>{
 	
 	private void creatJumpIndex() {
 		No auxNo = getHead(), backNo = getHead();
-		int jumpNow = 0;
+		int jumpNow = 0;						// controla as iterações para saber o momento do salto
 		while (auxNo != null){
+			jumpNow++;
 			auxNo.setJump(null);
-			if (jumpNow >= 5){
+			if (jumpNow >= this.jump){			// momento do salto
 				backNo.setJump(auxNo);
 				backNo = auxNo;
-				jumpNow = 0;
+				jumpNow = 0;					// reinicia o controlador
 			}
-			jumpNow++;
 			auxNo = auxNo.getNext();
 		}
 		this.insertions = 0;
 		this.validJump = true;
 	}
-
-	public void listar(){
-		No auxNo = getHead();
-
-		if (auxNo == null){
-			System.err.println("Lista Vazia!!!");
-		}else{
-			int i = 1;
-			while (auxNo != null){
-				if (i%20 != 0){
-					System.out.print(auxNo.getData()+"   ");
-				} else {
-					System.out.println(auxNo.getData());
-				}
-				i++;
-				auxNo = auxNo.getNext();
-			}
-		}
-	}
-
 }
